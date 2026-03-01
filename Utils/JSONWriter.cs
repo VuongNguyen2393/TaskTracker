@@ -3,9 +3,25 @@ using TaskTracker.Model;
 
 namespace TaskTracker;
 
-public class JSONWriter : Iwriter
+public class JSONWriter
 {
-  public void WriteObject<T>(string filePath, T data)
+  private string _filePath;
+  public JSONWriter(string filePath)
+  {
+    _filePath = filePath;
+    if (!File.Exists(_filePath))
+    {
+      File.WriteAllText(_filePath, "[]");
+    }
+    ;
+  }
+
+  public List<T> GetAll<T>()
+  {
+    var json = File.ReadAllText(_filePath);
+    return JsonSerializer.Deserialize<List<T>>(json) ?? new List<T>();
+  }
+  public void SaveAll<T>(List<T> data)
   {
     var options = new JsonSerializerOptions
     {
@@ -13,38 +29,39 @@ public class JSONWriter : Iwriter
     };
 
     var serializedData = JsonSerializer.Serialize(data, options);
-    File.WriteAllText(filePath, serializedData);
+    File.WriteAllText(_filePath, serializedData);
   }
 
-  public List<T> ReadObject<T>(string filePath)
+  public void Add<T>(T item)
   {
-    if (!File.Exists(filePath))
-    {
-      return new List<T>();
-    }
-
-    var json = File.ReadAllText(filePath);
-
-    if (string.IsNullOrWhiteSpace(json))
-    {
-      return new List<T>();
-    }
-
-    return JsonSerializer.Deserialize<List<T>>(json) ?? new List<T>();
+    var json = GetAll<T>();
+    json.Add(item);
+    SaveAll<T>(json);
   }
 
-  public int GenerateNextId(string filePath)
+  public void Delete<T>(Func<T, bool> predicate)
   {
-    if (!File.Exists(filePath))
+    var tasks = GetAll<T>();
+    var targetTask = tasks.FirstOrDefault(predicate);
+    if (targetTask == null)
     {
-      return 1;
+      System.Console.WriteLine("Task not found");
+      return;
     }
+    tasks.Remove(targetTask);
+    SaveAll(tasks);
+  }
 
-    var tasks = ReadObject<MyTask>(filePath);
-    if (tasks.Count() == 0)
+  public void Update<T>(Func<T, bool> prediate, T updatedData)
+  {
+    var tasks = GetAll<T>();
+    var idxTask = tasks.FindIndex(t => prediate(t));
+    if (idxTask < 0)
     {
-      return 1;
+      System.Console.WriteLine("Task not found");
+      return;
     }
-    return tasks.Max(t => t.Id) + 1;
+    tasks[idxTask] = updatedData;
+    SaveAll<T>(tasks);
   }
 }

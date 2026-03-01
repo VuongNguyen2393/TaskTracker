@@ -4,15 +4,15 @@ namespace TaskTracker;
 
 class Program
 {
-    private static Iwriter _writer;
+    private static JSONWriter _writer;
     const string FILE_PATH = "JsonStoredFile.json";
-    public Program(Iwriter writer)
+    public Program(JSONWriter writer)
     {
         _writer = writer;
     }
     static void Main(string[] args)
     {
-        Iwriter writer = new JSONWriter();
+        var writer = new JSONWriter(FILE_PATH);
         var program = new Program(writer);
         program.Run();
     }
@@ -71,9 +71,20 @@ class Program
         var description = splittedInput[1];
         var newTask = new MyTask()
         {
-            Id = _writer.GenerateNextId(FILE_PATH),
+            Id = CreateNextId(),
             Description = description
         };
-        _writer.WriteObject(FILE_PATH, newTask);
+        _writer.Add(newTask);
     }
+
+    private static int CreateNextId()
+    {
+        var tasks = _writer.GetAll<MyTask>();
+        if (tasks.Count == 0)
+        {
+            return 1;
+        }
+        return tasks.Max(t => t.Id) + 1;
+    }
+
 }
