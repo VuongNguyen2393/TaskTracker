@@ -21,6 +21,12 @@ public class JSONWriter
     var json = File.ReadAllText(_filePath);
     return JsonSerializer.Deserialize<List<T>>(json) ?? new List<T>();
   }
+
+  public T? GetById<T>(Func<T, bool> predicate)
+  {
+    var tasks = GetAll<T>();
+    return tasks.FirstOrDefault(predicate);
+  }
   public void SaveAll<T>(List<T> data)
   {
     var options = new JsonSerializerOptions
