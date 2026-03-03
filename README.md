@@ -1,27 +1,46 @@
 # Task Tracker CLI
 
-A simple CLI application to manage the tasks. It has following functions:
+Task Tracker is a simple Command Line Interface (CLI) application built with C# / .NET that helps you manage daily tasks. You can create tasks, update them, change their status, delete them, and view all tasks.
+This project is implemented following the specification from roadmap.sh.
 
-- **Add new task:** add "Buy groceries"
-- **Update task:** update 1 "Buy groceries and cook dinner"
-- **Delete task**
-- **List all tasks**
-- **List all done tasks**
-- **List all in-progress tasks**
-- **List all todo tasks**
-- **Mark a task as in-progress**
-- **Mark a task as done**
+## Features:
 
-## How to run?
+➕ Add a new task
+
+✏️ Update an existing task
+
+🔄 Change task status
+(todo → in-progress → done)
+
+❌ Delete a task
+
+📋 List all tasks
+
+💾 Persist data using a JSON file
+
+## Installation & Setup
+
+### Requirement
+
+- .NET SDK 6.0+
+- Windows / macOS / Linux
+
+### Clone the project
 
 ```
-git clone https://github.com/VuongNguyen2393/TaskTracker.git
+git clone https://github.com/VuongNguyen2393/TaskTracker
 
+cd TaskTracker
+```
 
+### Build & Run
+
+```
+dotnet build
 dotnet run
 ```
 
-## Usage Example
+## Usage Guide
 
 ```
 # Add new task
