@@ -4,7 +4,8 @@ namespace TaskTracker;
 
 class Program
 {
-    private static JSONWriter _writer;
+    private JSONWriter _writer;
+    private bool _stopFlag = false;
     const string FILE_PATH = "JsonStoredFile.json";
     public Program(JSONWriter writer)
     {
@@ -19,25 +20,35 @@ class Program
 
     void Run()
     {
-        System.Console.WriteLine("What do you want to do?");
+        while (!_stopFlag)
+        {
+            System.Console.WriteLine("What do you want to do?\n");
 
-        //Read the input
-        var inputStr = Console.ReadLine();
+            //Read the input
+            var inputStr = Console.ReadLine();
 
-        //Extract the command
-        var command = ExtractCommand(inputStr);
+            //Extract the command
+            string command;
+            if (inputStr != null)
+            {
+                command = ExtractCommand(inputStr);
+            }
+            else
+            {
+                return;
+            }
 
-        //Route the command to the method
-        RouteCommand(command, inputStr);
-
+            //Route the command to the method
+            RouteCommand(command, inputStr);
+        }
     }
 
-    private static string ExtractCommand(string input)
+    private string ExtractCommand(string input)
     {
         return input.Split()[0].ToLower();
     }
 
-    private static void RouteCommand(string command, string input)
+    private void RouteCommand(string command, string input)
     {
         switch (command)
         {
@@ -59,18 +70,21 @@ class Program
             case "mark-done":
                 MarkStatus(input, "done");
                 return;
+            case "exit":
+                _stopFlag = true;
+                return;
             default:
-                System.Console.WriteLine("Invalid Command");
+                System.Console.WriteLine("Invalid Command\n");
                 return;
         }
     }
 
-    private static void AddTask(string input)
+    private void AddTask(string input)
     {
         var splittedInput = input.Split('"');
         if (splittedInput.Length != 3)
         {
-            System.Console.WriteLine("Invalid Command");
+            System.Console.WriteLine("Invalid Command\n");
             return;
         }
         var description = splittedInput[1];
@@ -82,14 +96,14 @@ class Program
         _writer.Add(newTask);
     }
 
-    private static void UpdateTask(string input)
+    private void UpdateTask(string input)
     {
         var splittedInput = input.Split('"');
         var targetId = int.Parse(splittedInput[0].Split()[1]);
         var targetTask = _writer.GetById<MyTask>(t => t.Id == targetId);
         if (targetTask == null)
         {
-            System.Console.WriteLine("Task is not found");
+            System.Console.WriteLine("Task is not found\n");
             return;
         }
         targetTask.Description = splittedInput[1];
@@ -97,14 +111,14 @@ class Program
         _writer.Update<MyTask>(t => t.Id == targetId, targetTask);
     }
 
-    private static void DeleteTask(string input)
+    private void DeleteTask(string input)
     {
         var splittedInput = input.Split();
         var targetId = int.Parse(splittedInput[1]);
         _writer.Delete<MyTask>(t => t.Id == targetId);
     }
 
-    private static void ListTasks(string input)
+    private void ListTasks(string input)
     {
         var splittedInput = input.Split();
         var tasks = _writer.GetAll<MyTask>();
@@ -130,17 +144,17 @@ class Program
                     DisplayStatusTasks(targetTasks);
                     return;
                 default:
-                    System.Console.WriteLine("Invalid command");
+                    System.Console.WriteLine("Invalid command\n");
                     return;
             }
         }
         else
         {
-            System.Console.WriteLine("Invalid command");
+            System.Console.WriteLine("Invalid command\n");
         }
     }
 
-    private static void DisplayAllTasks(List<MyTask> tasks)
+    private void DisplayAllTasks(List<MyTask> tasks)
     {
         foreach (var myTask in tasks)
         {
@@ -149,6 +163,7 @@ class Program
                 System.Console.WriteLine("\n");
                 System.Console.WriteLine(new string('*', 20));
             }
+            System.Console.WriteLine($"Id: {myTask.Id}");
             System.Console.WriteLine($"Description: {myTask.Description}");
             System.Console.WriteLine($"Status: {myTask.Status}");
             System.Console.WriteLine($"Created At: {myTask.CreatedDate}");
@@ -163,13 +178,13 @@ class Program
 
             if (tasks.IndexOf(myTask) == tasks.Count() - 1)
             {
-                System.Console.WriteLine(new string('*', 20));
+                System.Console.WriteLine($"{new string('*', 20)}\n");
             }
 
         }
     }
 
-    private static void DisplayStatusTasks(List<MyTask> tasks)
+    private void DisplayStatusTasks(List<MyTask> tasks)
     {
         foreach (var myTask in tasks)
         {
@@ -178,6 +193,7 @@ class Program
                 System.Console.WriteLine("\n");
                 System.Console.WriteLine(new string('*', 20));
             }
+            System.Console.WriteLine($"Id: {myTask.Id}");
             System.Console.WriteLine($"Description: {myTask.Description}");
             System.Console.WriteLine($"Created At: {myTask.CreatedDate}");
             if (myTask.UpdatedAt != null)
@@ -190,19 +206,19 @@ class Program
             }
             if (tasks.IndexOf(myTask) == tasks.Count() - 1)
             {
-                System.Console.WriteLine(new string('*', 20));
+                System.Console.WriteLine($"{new string('*', 20)}\n");
             }
         }
     }
 
-    private static void MarkStatus(string input, string updatedStatus)
+    private void MarkStatus(string input, string updatedStatus)
     {
         var splittedInput = input.Split();
         var targetId = int.Parse(splittedInput[1]);
         var targetTask = _writer.GetById<MyTask>(t => t.Id == targetId);
         if (targetTask == null)
         {
-            System.Console.WriteLine("Task is not found");
+            System.Console.WriteLine("Task is not found\n");
             return;
         }
         targetTask.Status = updatedStatus;
@@ -210,7 +226,7 @@ class Program
         _writer.Update<MyTask>(t => t.Id == targetId, targetTask);
     }
 
-    private static int CreateNextId()
+    private int CreateNextId()
     {
         var tasks = _writer.GetAll<MyTask>();
         if (tasks.Count == 0)

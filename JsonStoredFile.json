@@ -7,13 +7,6 @@
     "UpdatedAt": "2026-03-02T23:18:42.585276+07:00"
   },
   {
-    "Id": 2,
-    "Description": "testing my code",
-    "Status": "done",
-    "CreatedDate": "2026-03-01T22:39:21.82215+07:00",
-    "UpdatedAt": null
-  },
-  {
     "Id": 3,
     "Description": "Get Up early",
     "Status": "todo",
