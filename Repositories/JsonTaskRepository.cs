@@ -3,10 +3,10 @@ using TaskTracker.Model;
 
 namespace TaskTracker;
 
-public class JSONWriter
+public class JsonTaskRepository : ITaskTracker
 {
   private string _filePath;
-  public JSONWriter(string filePath)
+  public JsonTaskRepository(string filePath)
   {
     _filePath = filePath;
     if (!File.Exists(_filePath))
@@ -16,18 +16,18 @@ public class JSONWriter
     ;
   }
 
-  public List<T> GetAll<T>()
+  public List<DailyTask> GetAll()
   {
     var json = File.ReadAllText(_filePath);
-    return JsonSerializer.Deserialize<List<T>>(json) ?? new List<T>();
+    return JsonSerializer.Deserialize<List<DailyTask>>(json) ?? new List<DailyTask>();
   }
 
-  public T? GetById<T>(Func<T, bool> predicate)
+  public DailyTask? GetById(int id)
   {
-    var tasks = GetAll<T>();
-    return tasks.FirstOrDefault(predicate);
+    var tasks = GetAll();
+    return tasks.FirstOrDefault(t => t.Id == id);
   }
-  public void SaveAll<T>(List<T> data)
+  public void Save(List<DailyTask> data)
   {
     var options = new JsonSerializerOptions
     {
@@ -38,36 +38,36 @@ public class JSONWriter
     File.WriteAllText(_filePath, serializedData);
   }
 
-  public void Add<T>(T item)
+  public void Add(DailyTask item)
   {
-    var json = GetAll<T>();
+    var json = GetAll();
     json.Add(item);
-    SaveAll<T>(json);
+    Save(json);
   }
 
-  public void Delete<T>(Func<T, bool> predicate)
+  public void Delete(int id)
   {
-    var tasks = GetAll<T>();
-    var targetTask = tasks.FirstOrDefault(predicate);
+    var tasks = GetAll();
+    var targetTask = tasks.FirstOrDefault(t => t.Id == id);
     if (targetTask == null)
     {
       System.Console.WriteLine("Task not found");
       return;
     }
     tasks.Remove(targetTask);
-    SaveAll(tasks);
+    Save(tasks);
   }
 
-  public void Update<T>(Func<T, bool> prediate, T updatedData)
+  public void Update(DailyTask updatedData)
   {
-    var tasks = GetAll<T>();
-    var idxTask = tasks.FindIndex(t => prediate(t));
+    var tasks = GetAll();
+    var idxTask = tasks.FindIndex(t => t.Id == updatedData.Id);
     if (idxTask < 0)
     {
       System.Console.WriteLine("Task not found");
       return;
     }
     tasks[idxTask] = updatedData;
-    SaveAll<T>(tasks);
+    Save(tasks);
   }
 }

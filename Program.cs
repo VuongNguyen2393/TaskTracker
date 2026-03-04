@@ -1,19 +1,20 @@
 ﻿using TaskTracker.Model;
+using Task = TaskTracker.Model.DailyTask;
 
 namespace TaskTracker;
 
 class Program
 {
-    private JSONWriter _writer;
+    private JsonTaskRepository _writer;
     private bool _stopFlag = false;
-    const string FILE_PATH = "JsonStoredFile.json";
-    public Program(JSONWriter writer)
+    const string FILE_PATH = "Data/tasks.json";
+    public Program(JsonTaskRepository writer)
     {
         _writer = writer;
     }
     static void Main(string[] args)
     {
-        var writer = new JSONWriter(FILE_PATH);
+        var writer = new JsonTaskRepository(FILE_PATH);
         var program = new Program(writer);
         program.Run();
     }
@@ -88,7 +89,7 @@ class Program
             return;
         }
         var description = splittedInput[1];
-        var newTask = new MyTask()
+        var newTask = new Task()
         {
             Id = CreateNextId(),
             Description = description
@@ -100,7 +101,7 @@ class Program
     {
         var splittedInput = input.Split('"');
         var targetId = int.Parse(splittedInput[0].Split()[1]);
-        var targetTask = _writer.GetById<MyTask>(t => t.Id == targetId);
+        var targetTask = _writer.GetById(targetId);
         if (targetTask == null)
         {
             System.Console.WriteLine("Task is not found\n");
@@ -108,27 +109,27 @@ class Program
         }
         targetTask.Description = splittedInput[1];
         targetTask.UpdatedAt = DateTime.Now;
-        _writer.Update<MyTask>(t => t.Id == targetId, targetTask);
+        _writer.Update(targetTask);
     }
 
     private void DeleteTask(string input)
     {
         var splittedInput = input.Split();
         var targetId = int.Parse(splittedInput[1]);
-        _writer.Delete<MyTask>(t => t.Id == targetId);
+        _writer.Delete(targetId);
     }
 
     private void ListTasks(string input)
     {
         var splittedInput = input.Split();
-        var tasks = _writer.GetAll<MyTask>();
+        var tasks = _writer.GetAll();
         if (splittedInput.Count() == 1)
         {
             DisplayAllTasks(tasks);
         }
         else if (splittedInput.Count() == 2)
         {
-            List<MyTask> targetTasks;
+            List<DailyTask> targetTasks;
             switch (splittedInput[1].ToLower())
             {
                 case "done":
@@ -154,29 +155,29 @@ class Program
         }
     }
 
-    private void DisplayAllTasks(List<MyTask> tasks)
+    private void DisplayAllTasks(List<DailyTask> tasks)
     {
-        foreach (var myTask in tasks)
+        foreach (var Task in tasks)
         {
-            if (tasks.IndexOf(myTask) == 0)
+            if (tasks.IndexOf(Task) == 0)
             {
                 System.Console.WriteLine("\n");
                 System.Console.WriteLine(new string('*', 20));
             }
-            System.Console.WriteLine($"Id: {myTask.Id}");
-            System.Console.WriteLine($"Description: {myTask.Description}");
-            System.Console.WriteLine($"Status: {myTask.Status}");
-            System.Console.WriteLine($"Created At: {myTask.CreatedDate}");
-            if (myTask.UpdatedAt != null)
+            System.Console.WriteLine($"Id: {Task.Id}");
+            System.Console.WriteLine($"Description: {Task.Description}");
+            System.Console.WriteLine($"Status: {Task.Status}");
+            System.Console.WriteLine($"Created At: {Task.CreatedDate}");
+            if (Task.UpdatedAt != null)
             {
-                System.Console.WriteLine($"Updated At: {myTask.UpdatedAt}\n");
+                System.Console.WriteLine($"Updated At: {Task.UpdatedAt}\n");
             }
             else
             {
                 System.Console.WriteLine("\n");
             }
 
-            if (tasks.IndexOf(myTask) == tasks.Count() - 1)
+            if (tasks.IndexOf(Task) == tasks.Count() - 1)
             {
                 System.Console.WriteLine($"{new string('*', 20)}\n");
             }
@@ -184,27 +185,27 @@ class Program
         }
     }
 
-    private void DisplayStatusTasks(List<MyTask> tasks)
+    private void DisplayStatusTasks(List<DailyTask> tasks)
     {
-        foreach (var myTask in tasks)
+        foreach (var Task in tasks)
         {
-            if (tasks.IndexOf(myTask) == 0)
+            if (tasks.IndexOf(Task) == 0)
             {
                 System.Console.WriteLine("\n");
                 System.Console.WriteLine(new string('*', 20));
             }
-            System.Console.WriteLine($"Id: {myTask.Id}");
-            System.Console.WriteLine($"Description: {myTask.Description}");
-            System.Console.WriteLine($"Created At: {myTask.CreatedDate}");
-            if (myTask.UpdatedAt != null)
+            System.Console.WriteLine($"Id: {Task.Id}");
+            System.Console.WriteLine($"Description: {Task.Description}");
+            System.Console.WriteLine($"Created At: {Task.CreatedDate}");
+            if (Task.UpdatedAt != null)
             {
-                System.Console.WriteLine($"Updated At: {myTask.UpdatedAt}\n");
+                System.Console.WriteLine($"Updated At: {Task.UpdatedAt}\n");
             }
             else
             {
                 System.Console.WriteLine("\n");
             }
-            if (tasks.IndexOf(myTask) == tasks.Count() - 1)
+            if (tasks.IndexOf(Task) == tasks.Count() - 1)
             {
                 System.Console.WriteLine($"{new string('*', 20)}\n");
             }
@@ -215,7 +216,7 @@ class Program
     {
         var splittedInput = input.Split();
         var targetId = int.Parse(splittedInput[1]);
-        var targetTask = _writer.GetById<MyTask>(t => t.Id == targetId);
+        var targetTask = _writer.GetById(targetId);
         if (targetTask == null)
         {
             System.Console.WriteLine("Task is not found\n");
@@ -223,12 +224,12 @@ class Program
         }
         targetTask.Status = updatedStatus;
         targetTask.UpdatedAt = DateTime.Now;
-        _writer.Update<MyTask>(t => t.Id == targetId, targetTask);
+        _writer.Update(targetTask);
     }
 
     private int CreateNextId()
     {
-        var tasks = _writer.GetAll<MyTask>();
+        var tasks = _writer.GetAll();
         if (tasks.Count == 0)
         {
             return 1;

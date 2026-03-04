@@ -1,8 +1,8 @@
 namespace TaskTracker.Model
 {
-  public class MyTask
+  public class DailyTask
   {
-    public MyTask()
+    public DailyTask()
     {
       CreatedDate = DateTime.Now;
       Status = "todo";
