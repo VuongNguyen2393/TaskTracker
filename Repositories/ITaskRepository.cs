@@ -2,12 +2,12 @@ using TaskTracker.Model;
 
 namespace TaskTracker;
 
-public interface ITaskTracker
+public interface ITaskRepository
 {
-  public List<DailyTask> GetAll();
-  public DailyTask? GetById(int id);
-  public void Save(List<DailyTask> data);
-  public void Add(DailyTask item);
-  public void Delete(int id);
-  public void Update(DailyTask updatedData);
+  List<DailyTask> GetAll();
+  DailyTask? GetById(int id);
+  void Save(List<DailyTask> data);
+  void Add(DailyTask item);
+  void Delete(int id);
+  void Update(DailyTask updatedData);
 }

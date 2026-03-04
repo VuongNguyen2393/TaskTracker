@@ -3,17 +3,17 @@ using TaskTracker.Model;
 
 namespace TaskTracker;
 
-public class JsonTaskRepository : ITaskTracker
+public class JsonTaskRepository : ITaskRepository
 {
   private string _filePath;
   public JsonTaskRepository(string filePath)
   {
     _filePath = filePath;
+
     if (!File.Exists(_filePath))
     {
       File.WriteAllText(_filePath, "[]");
     }
-    ;
   }
 
   public List<DailyTask> GetAll()
