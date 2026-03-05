@@ -1,15 +1,15 @@
-using TaskTracker.Model;
+using System.Data.Common;
+using TaskTracker.Models;
 
 namespace TaskTracker;
 
 public interface ITaskSerice
 {
-  void AddTask(string input);
-  void UpdateTask(string input);
-  void DeleteTask(string input);
-  void ListTasks(string input);
-  void DisplayAllTasks(List<DailyTask> tasks);
-  void DisplayStatusTasks(List<DailyTask> tasks);
-  void MarkStatus(string input, string updatedStatus);
+  void AddTask(string description);
+  void UpdateTask(int id, string description);
+  void DeleteTask(int id);
+  void DisplayAllTasks();
+  void DisplayStatusTasks(string status);
+  void MarkStatus(int id, string updatedStatus);
   int CreateNextId();
 }

@@ -1,4 +1,7 @@
-using TaskTracker.Model;
+using System.Runtime.InteropServices.Marshalling;
+using System.Security.Cryptography;
+using TaskTracker.Models;
+using TaskTracker.Models.Enums;
 
 namespace TaskTracker;
 
@@ -9,83 +12,46 @@ public class TaskService : ITaskSerice
   {
     _taskRepository = taskRepository;
   }
-  public void AddTask(string input)
+  public void AddTask(string description)
   {
-    var splittedInput = input.Split('"');
-    if (splittedInput.Length != 3)
-    {
-      System.Console.WriteLine("Invalid Command\n");
-      return;
-    }
-    var description = splittedInput[1];
     var newTask = new DailyTask()
     {
       Id = CreateNextId(),
       Description = description
     };
     _taskRepository.Add(newTask);
+    System.Console.WriteLine("Task is added successfully");
   }
 
-  public void UpdateTask(string input)
+  public void UpdateTask(int id, string description)
   {
-    var splittedInput = input.Split('"');
-    var targetId = int.Parse(splittedInput[0].Split()[1]);
-    var targetTask = _taskRepository.GetById(targetId);
+    var targetTask = _taskRepository.GetById(id);
     if (targetTask == null)
     {
       System.Console.WriteLine("Task is not found\n");
       return;
     }
-    targetTask.Description = splittedInput[1];
+    targetTask.Description = description;
     targetTask.UpdatedAt = DateTime.Now;
     _taskRepository.Update(targetTask);
+    System.Console.WriteLine("Task updated successfully");
   }
 
-  public void DeleteTask(string input)
+  public void DeleteTask(int id)
   {
-    var splittedInput = input.Split();
-    var targetId = int.Parse(splittedInput[1]);
-    _taskRepository.Delete(targetId);
-  }
-
-  public void ListTasks(string input)
-  {
-    var splittedInput = input.Split();
     var tasks = _taskRepository.GetAll();
-    if (splittedInput.Count() == 1)
+    var targetTask = tasks.FirstOrDefault(t => t.Id == id);
+    if (targetTask == null)
     {
-      DisplayAllTasks(tasks);
+      System.Console.WriteLine("Task not found");
     }
-    else if (splittedInput.Count() == 2)
-    {
-      List<DailyTask> targetTasks;
-      switch (splittedInput[1].ToLower())
-      {
-        case "done":
-          targetTasks = tasks.Where(t => t.Status == "done").ToList();
-          DisplayStatusTasks(targetTasks);
-          return;
-        case "todo":
-          targetTasks = tasks.Where(t => t.Status == "todo").ToList();
-          DisplayStatusTasks(targetTasks);
-          return;
-        case "in-progress":
-          targetTasks = tasks.Where(t => t.Status == "in-progress").ToList();
-          DisplayStatusTasks(targetTasks);
-          return;
-        default:
-          System.Console.WriteLine("Invalid command\n");
-          return;
-      }
-    }
-    else
-    {
-      System.Console.WriteLine("Invalid command\n");
-    }
+    _taskRepository.Delete(id);
+    System.Console.WriteLine("Task is deleted successfully");
   }
 
-  public void DisplayAllTasks(List<DailyTask> tasks)
+  public void DisplayAllTasks()
   {
+    var tasks = _taskRepository.GetAll();
     foreach (var Task in tasks)
     {
       if (tasks.IndexOf(Task) == 0)
@@ -114,8 +80,14 @@ public class TaskService : ITaskSerice
     }
   }
 
-  public void DisplayStatusTasks(List<DailyTask> tasks)
+  public void DisplayStatusTasks(string status)
   {
+    if (!DailyTaskStatus.ValidStatus.Contains(status.ToLower()))
+    {
+      System.Console.WriteLine("Invalid Status");
+      return;
+    }
+    var tasks = _taskRepository.GetAll().Where(t => t.Status == status).ToList();
     foreach (var Task in tasks)
     {
       if (tasks.IndexOf(Task) == 0)
@@ -141,14 +113,17 @@ public class TaskService : ITaskSerice
     }
   }
 
-  public void MarkStatus(string input, string updatedStatus)
+  public void MarkStatus(int id, string updatedStatus)
   {
-    var splittedInput = input.Split();
-    var targetId = int.Parse(splittedInput[1]);
-    var targetTask = _taskRepository.GetById(targetId);
+    var targetTask = _taskRepository.GetById(id);
     if (targetTask == null)
     {
       System.Console.WriteLine("Task is not found\n");
+      return;
+    }
+    if (!DailyTaskStatus.ValidStatus.Contains(updatedStatus.ToLower()))
+    {
+      System.Console.WriteLine("Invalid status.");
       return;
     }
     targetTask.Status = updatedStatus;

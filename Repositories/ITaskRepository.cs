@@ -1,4 +1,4 @@
-using TaskTracker.Model;
+using TaskTracker.Models;
 
 namespace TaskTracker;
 

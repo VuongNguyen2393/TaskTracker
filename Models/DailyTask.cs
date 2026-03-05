@@ -1,11 +1,13 @@
-namespace TaskTracker.Model
+using TaskTracker.Models.Enums;
+
+namespace TaskTracker.Models
 {
   public class DailyTask
   {
     public DailyTask()
     {
       CreatedDate = DateTime.Now;
-      Status = "todo";
+      Status = DailyTaskStatus.Todo;
     }
     public int Id { get; set; }
     public string? Description { get; set; }
