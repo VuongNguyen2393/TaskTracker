@@ -1,7 +1,7 @@
 # Task Tracker CLI
 
 Task Tracker is a simple Command Line Interface (CLI) application built with C# / .NET that helps you manage daily tasks. You can create tasks, update them, change their status, delete them, and view all tasks.
-This project is implemented following the specification from roadmap.sh.
+This project is implemented following the specification from [roadmap.sh](https://roadmap.sh/projects/task-tracker).
 
 ## Features:
 
