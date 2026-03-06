@@ -1,3 +1,5 @@
+using TaskTracker.Utils;
+
 namespace TaskTracker.Commands.Dispatcher
 {
   public class CommandDispatcher(Dictionary<string, ICommandHandler> commandHandlerDict)
@@ -7,7 +9,7 @@ namespace TaskTracker.Commands.Dispatcher
     {
       if (command == null || !_commandHandlerDict.TryGetValue(command.Name, out ICommandHandler? handler))
       {
-        System.Console.WriteLine("Invalid command");
+        ConsoleHelper.PrintError("Invalid command");
         return;
       }
       handler.Handle(command);

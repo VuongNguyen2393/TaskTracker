@@ -2,6 +2,7 @@ using System.Runtime.InteropServices.Marshalling;
 using System.Security.Cryptography;
 using TaskTracker.Models;
 using TaskTracker.Models.Enums;
+using TaskTracker.Utils;
 
 namespace TaskTracker;
 
@@ -20,7 +21,7 @@ public class TaskService : ITaskSerice
       Description = description
     };
     _taskRepository.Add(newTask);
-    System.Console.WriteLine("Task is added successfully");
+    ConsoleHelper.PrintSuccess("Task is added successfully");
   }
 
   public void UpdateTask(int id, string description)
@@ -28,13 +29,14 @@ public class TaskService : ITaskSerice
     var targetTask = _taskRepository.GetById(id);
     if (targetTask == null)
     {
-      System.Console.WriteLine("Task is not found\n");
+      ConsoleHelper.PrintWarning("Task is not found");
       return;
     }
     targetTask.Description = description;
     targetTask.UpdatedAt = DateTime.Now;
     _taskRepository.Update(targetTask);
-    System.Console.WriteLine("Task updated successfully");
+    ConsoleHelper.PrintSuccess("Task updated successfully");
+
   }
 
   public void DeleteTask(int id)
@@ -43,74 +45,46 @@ public class TaskService : ITaskSerice
     var targetTask = tasks.FirstOrDefault(t => t.Id == id);
     if (targetTask == null)
     {
-      System.Console.WriteLine("Task not found");
+      ConsoleHelper.PrintWarning("Task is not found");
+      return;
     }
     _taskRepository.Delete(id);
-    System.Console.WriteLine("Task is deleted successfully");
+    ConsoleHelper.PrintSuccess("Task is deleted successfully");
+
   }
 
   public void DisplayAllTasks()
   {
-    var tasks = _taskRepository.GetAll();
-    foreach (var Task in tasks)
+    var dailyTasks = _taskRepository.GetAll();
+
+    ConsoleHelper.PrintHeader($"{"ID",-4} {"Description",-30} Status");
+    System.Console.WriteLine(new string('=', 60));
+    foreach (var dailyTask in dailyTasks)
     {
-      if (tasks.IndexOf(Task) == 0)
-      {
-        System.Console.WriteLine("\n");
-        System.Console.WriteLine(new string('*', 20));
-      }
-      System.Console.WriteLine($"Id: {Task.Id}");
-      System.Console.WriteLine($"Description: {Task.Description}");
-      System.Console.WriteLine($"Status: {Task.Status}");
-      System.Console.WriteLine($"Created At: {Task.CreatedDate}");
-      if (Task.UpdatedAt != null)
-      {
-        System.Console.WriteLine($"Updated At: {Task.UpdatedAt}\n");
-      }
-      else
-      {
-        System.Console.WriteLine("\n");
-      }
-
-      if (tasks.IndexOf(Task) == tasks.Count() - 1)
-      {
-        System.Console.WriteLine($"{new string('*', 20)}\n");
-      }
-
+      System.Console.Write($"{dailyTask.Id,-4}");
+      ConsoleHelper.PrintDescription($"{dailyTask.Description,-30}");
+      ConsoleHelper.PrintStatus(dailyTask.Status);
     }
+    System.Console.WriteLine();
   }
 
   public void DisplayStatusTasks(string status)
   {
     if (!DailyTaskStatus.ValidStatus.Contains(status.ToLower()))
     {
-      System.Console.WriteLine("Invalid Status");
+      ConsoleHelper.PrintError("Invalid Status");
       return;
     }
-    var tasks = _taskRepository.GetAll().Where(t => t.Status == status).ToList();
-    foreach (var Task in tasks)
+    var dailyTasks = _taskRepository.GetAll().Where(t => t.Status == status).ToList();
+    ConsoleHelper.PrintHeader($"{"ID",-4} {"Description",-30} {"CreatedDatetime",-30} UpdatedDatetime");
+    System.Console.WriteLine(new string('=', 90));
+    foreach (var dailyTask in dailyTasks)
     {
-      if (tasks.IndexOf(Task) == 0)
-      {
-        System.Console.WriteLine("\n");
-        System.Console.WriteLine(new string('*', 20));
-      }
-      System.Console.WriteLine($"Id: {Task.Id}");
-      System.Console.WriteLine($"Description: {Task.Description}");
-      System.Console.WriteLine($"Created At: {Task.CreatedDate}");
-      if (Task.UpdatedAt != null)
-      {
-        System.Console.WriteLine($"Updated At: {Task.UpdatedAt}\n");
-      }
-      else
-      {
-        System.Console.WriteLine("\n");
-      }
-      if (tasks.IndexOf(Task) == tasks.Count() - 1)
-      {
-        System.Console.WriteLine($"{new string('*', 20)}\n");
-      }
+      System.Console.Write($"{dailyTask.Id,-4}");
+      ConsoleHelper.PrintDescription($"{dailyTask.Description,-30}");
+      System.Console.WriteLine($"{dailyTask.CreatedDate,-30} {dailyTask.UpdatedAt}");
     }
+    System.Console.WriteLine();
   }
 
   public void MarkStatus(int id, string updatedStatus)
@@ -118,17 +92,18 @@ public class TaskService : ITaskSerice
     var targetTask = _taskRepository.GetById(id);
     if (targetTask == null)
     {
-      System.Console.WriteLine("Task is not found\n");
+      ConsoleHelper.PrintWarning("Task is not found");
       return;
     }
     if (!DailyTaskStatus.ValidStatus.Contains(updatedStatus.ToLower()))
     {
-      System.Console.WriteLine("Invalid status.");
+      ConsoleHelper.PrintError("Invalid Status");
       return;
     }
     targetTask.Status = updatedStatus;
     targetTask.UpdatedAt = DateTime.Now;
     _taskRepository.Update(targetTask);
+    ConsoleHelper.PrintSuccess("Update task successfully");
   }
 
   public int CreateNextId()
