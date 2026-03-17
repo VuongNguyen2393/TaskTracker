@@ -9,14 +9,7 @@ namespace TaskTracker;
 
 class Program
 {
-
-    // private ITaskSerice _taskService;
-    // private bool _stopFlag = false;
     const string FILE_PATH = "Data/tasks.json";
-    // public Program(ITaskSerice taskService)
-    // {
-    //     _taskService = taskService;
-    // }
     static void Main(string[] args)
     {
         var parser = new CommandParser();
